@@ -1,0 +1,257 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% load custom_filter %}
+{% block header %}
+<script>
+    // function order_create() {
+    //     $.ajax({
+    //         url: "/api/order/create",
+    //         type:'POST',
+    //         data:FormData($("form")),
+    //         success: function( result ) {
+    //             console.log(result);
+    //         },
+    //         error:function(retsult) {
+    //             console.log(result)
+    //         }
+    //     });
+    // }
+
+    jQuery.fn.serializeObject = function () {
+        var obj = null;
+        try {
+            if (this[0].tagName && this[0].tagName.toUpperCase() == "FORM") {
+                var arr = this.serializeArray();
+                if (arr) {
+                    obj = {};
+                    jQuery.each(arr, function () {
+                        obj[this.name] = this.value;
+                    });
+                }//if ( arr ) {
+            }
+        } catch (e) {
+            alert(e.message);
+        } finally {
+        }
+
+        return obj;
+    };
+
+    function cart_create() {
+        var form_data = $("form[name=data_form]").serializeObject();
+        console.log(form_data);
+        $.ajax({
+            url: "{% url 'cart_api' %}",
+            type: 'POST',
+            headers: {
+                "X-Requested-With": "XMLHttpRequest",
+                "X-CSRFToken": form_data['csrfmiddlewaretoken'],
+            },
+            data: form_data,
+            success: function (result) {
+                if (confirm("장바구니에 등록되었습니다.\n확인하겠습니까?") == true) {
+                    location.href="/cart/"
+                }
+                else {
+                    return;
+                }
+            }
+        });
+    }
+</script>
+{% endblock %}
+{% block contents %}
+<style>
+    .row {
+        display: flex;
+    }
+
+    .column {
+        flex: 50%;
+    }
+
+    .card {
+        position: relative;
+        display: -ms-flexbox;
+        display: flex;
+        -ms-flex-direction: column;
+        flex-direction: column;
+        min-width: 0;
+        word-wrap: break-word;
+        background-color: #fff;
+        background-clip: border-box;
+        border: 1px solid rgba(0, 0, 0, 0.125);
+        border-radius: 0.25rem;
+    }
+
+    .card-body {
+        -ms-flex: 1 1 auto;
+        flex: 1 1 auto;
+        min-height: 1px;
+        padding: 1.25rem;
+    }
+
+    .card-title {
+        margin-bottom: 0.75rem;
+    }
+
+    .card-subtitle {
+        margin-top: -0.375rem;
+        margin-bottom: 0;
+    }
+
+    .card-header {
+        padding: 0.75rem 1.25rem;
+        margin-bottom: 0;
+        background-color: rgba(0, 0, 0, 0.03);
+        border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+    }
+
+    .card-link:hover {
+        text-decoration: none;
+    }
+
+    .card-link+.card-link {
+        margin-left: 1.25rem;
+    }
+
+    .list-group {
+        display: -ms-flexbox;
+        display: flex;
+        -ms-flex-direction: column;
+        flex-direction: column;
+        padding-left: 0;
+        margin-bottom: 0;
+        border-radius: 0.25rem;
+    }
+
+    .list-group-item {
+        position: relative;
+        display: block;
+        padding: 0.75rem 1.25rem;
+        background-color: #fff;
+        border: 1px solid rgba(0, 0, 0, 0.125);
+    }
+
+    .list-group-flush {
+        border-radius: 0;
+    }
+
+    .list-group-flush>.list-group-item {
+        border-width: 0 0 1px;
+    }
+
+    .btn-primary {
+        color: #fff;
+        background-color: #007bff;
+        border-color: #007bff;
+    }
+</style>
+
+<div class="container">
+    <div class="row mt-5">
+        <div class="column">
+            {% if images %}
+            {% for image in images %}
+            <li class="list-group-item">
+                <img src="{{ image.image.url }}" width="100%" />
+            </li>
+            {% endfor %}
+            {% else %}
+            <img src="/images/noimage.gif" />
+            {% endif %}
+        </div>
+        <div class="column">
+            <div class="card" style="width:100%;">
+                <div class="card-body">
+                    <h3 class="card-title">{{ product.name }}</h3>
+                    <h5 class="card-subtitle">{{ product.get_category_display }}</h5>
+                </div>
+                <ul class="list-group list-group-flush">
+
+                    <!-- 3자리마다 .추가 -->
+                    <li class="list-group-item">가격 : {{ product.price|intcomma }}원</li>
+                    <li class="list-group-item">등록날짜 : {{ product.creation_date|date:"Y-m-d H:i" }}</li>
+                    <li class="list-group-item">
+                        알러지 정보<br />
+
+                        {% for k,v in allergys.items %}
+                        {% if request.session.user_allergy and request.session.user_allergy|get_item:k %}
+                        <span style="color: red;">{{ v }}</span>
+                        {% else %}
+                        <span>{{ v }}</span>
+                        {% endif %}
+                        {% endfor %}
+                    </li>
+                    <li>
+                        {{ request.session.allergy }}
+                    </li>
+                    <li class="list-group-item">판매자 : {{ product.creator }}</li>
+                    <li class="list-group-item">
+                        <form method="POST" action="/order/create/" name="data_form">
+                            {% csrf_token %}
+                            {% for field in form %}
+                            <div class="form-group" style="margin-bottom: 1rem;">
+                                {% ifnotequal field.name "product" %}
+                                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                <input type="{{ field.field.widget.input_type }}" class="form-control"
+                                    id="{{ field.id_for_label }}" placeholder="{{ field.label }}"
+                                    name="{{ field.name }}" />
+                                {% else %}
+                                <input type="{{ field.field.widget.input_type }}" class="form-control"
+                                    id="{{ field.id_for_label }}" placeholder="{{ field.label }}"
+                                    name="{{ field.name }}" value="{{ product.id }}" />
+                                {% endifnotequal %}
+                            </div>
+                            {% if field.errors %}
+                            <span style="color: red">{{ field.errors }}</span>
+                            {% endif %}
+                            {% endfor %}
+                            <button type="button" class="card-link btn-primary" style="padding: 12px;"
+                                onclick="cart_create();return false;">담기</button>
+                            <button class="card-link btn-primary" style="padding: 12px;"
+                                onclick="order_create();return false;">주문하기</button>
+                            {% if product.creator.email == request.session.user %}
+                            <button class="card-link btn-primary" style="padding: 12px;"
+                                onclick="location.href='/product/update/{{ product.id }}/'; return false;">수정</button>
+                            {% endif %}
+                        </form>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <!-- <div class="row">
+                <div class="col-12">
+                    <a href="/product/">목록보기</a>
+                </div>
+            </div> -->
+    </div>
+    <div style="
+            text-align: center;
+            height: 50px; 
+            color: white; 
+            background-color: lightgray;">
+        <h2>상품 상세 설명</h2><br>
+    </div>
+    <!-- 상품 메인 이미지 출력 부분 -->
+    <div style="text-align: center;">
+        <!-- {% if images %}
+            {% for image in images %}
+                <li class="list-group-item">
+                    <img src="{{ image.image.url }}" width="450"/>
+                </li>
+             {% endfor %}
+        {% endif %} -->
+
+
+        <!-- safe필터를 통해 태그를 그대로 사용 -->
+        <li class="list-group-item">{{ product.info|safe }}</li>
+
+        {% if product.Nutrition_Facts %}
+        <li class="list-group-item">
+            <img src="{{ product.Nutrition_Facts.url }}" width="450" />
+        </li>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

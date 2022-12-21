@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+<!-- setting.py에서 추가후 load가능 -->
+{% load humanize %}
+{% block contents %}
+<div class="row mt-5">
+    <div class="col-12">
+        <button onclick="window.location.href='create/';">상품 등록</button>
+        <table class="table table-light">
+            <thead class="thead-light">
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">메인 이미지</th>
+                    <th scope="col">상품명</th>
+                    <th scope="col">가격</th>
+                    <th scope="col">등록날짜</th>
+                </tr>
+            </thead>
+            <tbody class="text-dark">
+                {% for product in product_list %}
+                <tr>
+                    <th scope="row">{{ product.id }}</th>
+                    <th>
+                        {% if product.image %}
+                        <img src="{{ product.image.url }}" width="249" height="320px"/>
+                        {% else %}
+                        <img src="/images/noimage.gif"/>
+                        {% endif %}
+                    </th>
+                    <th><a id="{{ product.id }}" href="/product/{{ product.id }}/">{{ product.name }}</a></th>
+                    <!-- 3자리마다 .추가 -->
+                    <!-- |가 humanize에 있는 필터를 사용하는것 -->
+                    <th>{{ product.price|intcomma }}원</th>
+                    <th>{{ product.creation_date|date:"Y-m-d H:i" }}</th>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% block contents %}
+    <!-- main -->
+    <main class="main">
+        <section class="slide">
+          <div class="slide-wrap">
+            <div class="slide-box">
+              <ul class="slide-items">
+                <li class="slide-content">
+                  <a href="#" class="slide01"></a>
+                </li>
+                <li class="slide-content">
+                  <a href="#" class="slide02"></a>
+                </li>
+                <li class="slide-content">
+                  <a href="#" class="slide03"></a>
+                </li>
+                <li class="slide-content">
+                  <a href="#" class="slide04"></a>
+                </li>
+                <li class="slide-content">
+                  <a href="#" class="slide05"></a>
+                </li>
+                <li class="slide-content">
+                  <a href="#" class="slide06"></a>
+                </li>
+                <li class="slide-content">
+                  <a href="#" class="slide07"></a>
+                </li>
+                <li class="slide-content">
+                  <a href="#" class="slide08"></a>
+                </li>
+                <li class="slide-content">
+                  <a href="#" class="slide09"></a>
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div class="button-direction">
+            <button type="button" class="prev-button"></button>
+            <button type="button" class="next-button"></button>
+          </div>
+        </section>
+  
+        <section class="recommendation section">
+          <div class="container">
+            <h2 class="title">이 상품 어때요?</h2>
+
+          <div class="">
+            <div class="product-box" style="flex-wrap: wrap;">
+              
+              {% for product in product_list %}
+              <div class="new-item" style="justify-content: center;">
+                
+                  <div class="" style="margin-left: 20px; width: 249px;">
+                    <a id="{{ product.id }}" href="/product/{{ product.id }}/" class="">
+                      {% if product.image %}
+                        <img class="image-hover" src="{{ product.image.url }}" style="width:249px !important; height:320px !important;"/>
+
+                      {% else %}
+                        <img src="/images/noimage.gif" width="249px" height="320px"/>
+                      {% endif %}
+                      <h3 class="product-name">
+                        {{ product.name }}
+                        {% if product.fit >= 0 %}
+                        <strong class="discount-rate">{{ product.fit }}건</strong>
+                        {% endif %}
+                      </h3>
+                    </a>
+                    <div class="product-price">
+                      <strong class="final-price">{{ product.price|intcomma }}원</strong>
+                    </div>
+                  </div>
+                
+                </div>
+              {% endfor %}
+              
+            </div>
+          </div>
+                
+            
+  
+            <!-- <div class="product-button-direction">
+              <button type="button" class="recommend-prev-button"></button>
+              <button type="button" class="recommend-next-button"></button>
+            </div>
+          </div> -->
+        </section>
+  
+        <section class="banner">
+          <div class="container">
+            <a href="#" class="banner-delivery"></a>
+          </div>
+        </section>
+      </main>
+{% endblock %}

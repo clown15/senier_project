@@ -1,0 +1,54 @@
+<header class="header">
+  <div class="header-contents">
+    <div class="delivery-image">
+    </div>
+    <ul class="customers-items">
+      {% if not request.session.user %}
+      <li class="sign-up-item">
+        <a href="/signup/">회원가입</a>
+      </li>
+      <li class="sign-in-item">
+        <a href="/signin/">로그인</a>
+      </li>
+      {% else %}
+      <li class="sign-up-item">
+        안녕하세요. {{ request.session.user }}
+      </li>
+      <li class="sign-up-item">
+        <a href="/signout/">로그아웃</a>
+      </li>
+      <li class="sign-up-item">
+        <a href="/order/">주문목록</a>
+      </li>
+        {% if request.session.level == "admin" %}
+      <li class="sign-up-item">
+        <a href="/product/manage/">상품 관리</a>
+      </li>
+        {% endif %}
+      {% endif %}
+      <!-- <li class="service-center-item">
+          <a href="#">고객센터</a>
+          <button type="button" class="service-center-icon"></button>
+          <ul class="service-center-detail">
+            <li>
+              <a href="#">공지사항</a>
+            </li>
+            <li>
+              <a href="#">1:1 문의</a>
+            </li>
+          </ul>
+        </li> -->
+    </ul>
+  </div>
+
+  <div class="logo-image">
+    <a href="/">
+      <img
+        src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/39/Kubernetes_logo_without_workmark.svg/2109px-Kubernetes_logo_without_workmark.svg.png"
+        alt="KosaEpil-logo" />
+    </a>
+  </div>
+
+  {% include 'navbar.html' %}
+
+</header>
